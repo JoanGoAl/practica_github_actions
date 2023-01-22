@@ -19,3 +19,10 @@ linter_job:
     - run: npm install
     - run: npm run lint
 ````
+
+Al hacer un commit desde la rama `main` se ejecutara el workflow, al hacerlo nos dara un error en el codigo:
+
+<img src='readme_assets/error_linter.png' />
+
+Corregimos los errores y volvemos ha hacer el push
+
