@@ -20,11 +20,11 @@ linter_job:
     - run: npm run lint
 ````
 
-Al hacer un commit desde la rama `main` se ejecutara el workflow, al hacerlo nos dara un error en el codigo:
+### Al hacer un commit desde la rama `main` se ejecutara el workflow, al hacerlo nos dara un error en el codigo:
 
 <img src='readme_assets/error_linter.png' />
 
-Corregimos los errores y volvemos ha hacer el push
+### Corregimos los errores y volvemos ha hacer el push
 
 <img src='readme_assets/correccion_linter.png' />
 
@@ -39,7 +39,7 @@ Se encargará de ejecutar los tests de cypress (link) que contiene el proyecto. 
  - El encargado de ejecutar los tests de cypress que continuará aunque se produzca un error (existe una propiedad que podéis establecer para conseguir este comportamiento)
  - El encargado de crear un artefacto (result.txt) que contendrá la salida del step anterior
 
-A continuación de `linter_job` crearemos el `cypress_job`
+### A continuación de `linter_job` crearemos el `cypress_job`
 
 ````yml
 cypress_job:
@@ -64,3 +64,85 @@ cypress_job:
         name: test_result
         path: result.txt
 ````
+
+### Al hacer un push podremos ver como ha ejecutado los dos jobs perfectamente
+
+<img src='readme_assets/cypress_job.png' />
+
+<hr>
+
+## Add_badge_job
+
+Add_badge_job. Se encargará de publicar en el readme del proyecto el badge que indicará si se han superado los tests de cypress o no. Estará compuesto por los siguientes steps:
+ - El encargado de realizar el checkout del código
+ - El encargado de obtener los artefactos almacenados en el job anterior
+ - Un step encargado de generar un output partiendo de la lectura del artefacto recuperado. Básicamente ejecutará la instrucción echo "::set-output name=cypress_outcome::$(cat result.txt)"
+ - Un step que ejecutará una action propia que deberéis crear. Esta action recibirá como parámetro de entrada el output generado por el step anterior y, dependiendo de si es “failure” o “success”, modificará el README.md del proyecto añadiendo uno de los siguientes badges al final del mismo y tras el texto “RESULTADO DE LOS ÚLTIMOS TESTS”:
+    - (Failure) https://img.shields.io/badge/test-failure-red
+    - (Success) https://img.shields.io/badge/tested%20with-Cypress-04C38E.svg
+Step encargado de publicar el cambio del README.md en el repositorio
+
+### Primero crearemos el action para actualizar el `README`
+
+Crearemos la carpeta `.github/actions/actualizar_readme` donde crearemos un proyecto en node 
+
+````js
+const core = require("@actions/core")
+const fs = require("fs")
+
+const info = core.getInput("result")
+
+const success = "https://img.shields.io/badge/tested%20with-Cypress-04C38E.svg"
+const failure = "https://img.shields.io/badge/test-failure-red"
+
+let result = info == 'success' ? success : failure
+
+let readme = "../../../README.md"
+
+fs.readFile(readme, "utf8", (err, data) => {
+
+    if (err) throw err;
+
+    if (data.indexOf(`(${success})`) != -1) {
+        data = data.replace(`(${success})`, `(${result})`)
+    }
+
+    if (data.indexOf(`(${failure})`) != -1) {
+        data = data.replace(`(${failure})`, `(${result})`)
+    }
+
+    fs.writeFile(readme, data, (err) => {
+        if (err) throw err;
+
+        process.exit(0)
+    })
+
+})
+````
+
+Una vez creado el index.js tendremos que compilar utilizando `vercel` y en el `package.json` crearemos un scrpit que ejecutara el comando `ncc build index.js`
+
+````json
+"scripts": {
+  "test": "echo \"Error: no test specified\" && exit 1",
+  "build": "ncc build index.js"
+},
+````
+
+Y compilaremos
+
+En esta misma carpeta crearemos el fichero `action.yml`
+
+````yml
+name: Update Readme Actions
+description: Takes the result of the tests and updates the readme adding an badge
+inputs:
+  result:
+    description: Gets the result of Cypress
+    required: true
+runs:
+  using: "node16"
+  main: "dist/index.js"
+````
+Y por ultimo crearemos el job en el `workflow`
+

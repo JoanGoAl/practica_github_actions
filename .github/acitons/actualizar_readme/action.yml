@@ -1,0 +1,9 @@
+name: Update Readme Actions
+description: Takes the result of the tests and updates the readme adding an badge
+inputs:
+  result:
+    description: Gets the result of Cypress
+    required: true
+runs:
+  using: "node16"
+  main: "dist/index.js"
