@@ -182,6 +182,13 @@ Accedermos a `Settings > Actions > General` y activamos los permisos
 
 Una vez damos los permisos y hacemos el push podremos ver los resultados.
 
+<img src='readme_assets/badget_job.png' />
+
+
 Success:
 
-<img src='readme_assets/test_succes.png' />
+<img src='readme_assets/test_success.png' />
+
+Failed:
+
+<img src='readme_assets/test_fallido.png' />
