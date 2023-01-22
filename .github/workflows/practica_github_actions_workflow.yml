@@ -60,4 +60,3 @@ jobs:
           autho_email: ${{ github.event.pusher.email }}
           message: "Result of the tests on Cypress"
           push: true
-     
