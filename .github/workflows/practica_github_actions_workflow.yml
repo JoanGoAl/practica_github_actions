@@ -35,7 +35,7 @@ jobs:
           name: test_result
           path: result.txt
 
-  badge_job:
+  add_badge_job:
     runs-on: ubuntu-latest
     needs: cypress_job
     steps:
@@ -74,3 +74,20 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           working-directory: ./
+
+  notification_job:
+    runs-on: ubuntu-latest
+    needs: [ linter_job, cypress_job, add_badge_job, deploy_job ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Custom Action -> Send Email
+        uses: ./.github/actions/notification_action
+        with:
+          email_from: ${{ secrets.EMAIL_FROM }}
+          email_to: ${{ secrets.EMAIL_TO }}
+          email_password: ${{ secrets.EMAIL_PASSWORD }}
+          result_linter: ${{ needs.linter_job.result }}
+          result_cypress: ${{ needs.cypress_job.result }}
+          result_badge: ${{ needs.add_badge_job.result }}
+          result_deploy: ${{ needs.deploy_job.result }}

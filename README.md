@@ -205,7 +205,7 @@ Le primer paso sera crear una cuenta en `vercel` con `github` y importamos el pr
 
 <img src='readme_assets/vercel.png' />
 
-A continuación pulsaremos en `Deploy` y nos aparecera la siguiente tarjeta el sitio web es el siguiente <a href="https://practica-github-actions-en6a3xytb-joangoal.vercel.app">practica-github-actions</a>
+A continuación pulsaremos en `Deploy` y nos aparecera la siguiente tarjeta el sitio web es el siguiente <a href="https://practica-github-actions-joangoal.vercel.app/">practica-github-actions -> vercel</a>
 
 <img src='readme_assets/vercel_deploy.png' />
 
@@ -233,6 +233,159 @@ Para que la informaciónm sea mas segura utilizaremos los secrets de `github`
 
 Una vez creados los secrets hacemos un push
 
-Para ver que funciona hare unos cambios en el proyecto de next
+Para ver que funciona hará unos cambios en el proyecto de next
+
+<img src='readme_assets/deploy_job.png' />
+
+Si vamos al link <a href="https://practica-github-actions-joangoal.vercel.app/">practica-github-actions -> vercel</a>
+
+Podremos ver que ha funcionado perfectamente
+
+<img src='readme_assets/deploy_funcionamineto.png' />
+
+<hr>
+
+## Notification_job
+
+Job de envío de notificación a los usuarios del proyecto. Se denominará Notification_job y ejecutará, entre otros, una action propia que podrá basarse en Javascript. Se ejecutará siempre (aunque se haya producido un error en algún job previo), y se encargará de enviar un correo con:
+
+ - Destinatario: dirección de correo vuestra personal tomada de un secret de github <br> Asunto: Resultado del workflow ejecutado
+
+Cuerpo del mensaje:
+
+Se ha realizado un push en la rama  main que ha provocado la ejecución del workflow nombre_repositorio_workflow con los siguientes resultados:
+
+- linter_job: resultado asociado
+- cypress_job: resultado asociado
+- add_badge_job: resultado asociado
+- deploy_job: resultado asociado
+
+### Creación del action de correos
+
+Crearemos la carpeta `.github/actions/notification_action` donde crearemos un proyecto en node 
+
+````js
+const core = require('@actions/core')
+const nodemailer = require('nodemailer')
+
+let transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+        user: core.getInput('email_from'),
+        pass: core.getInput('email_password')
+    }
+})
+
+let mailToOptions = {
+    from: core.getInput("email_from"),
+    to: core.getInput('email_to'),
+    subject: "Resultado del workflow ejecutado",
+    html: `
+    <p>
+    Se ha realizado un push en la rama main que ha provocado la ejecución del workflow practica_github_actions_workflow de Joan González Albert de 2DAW con los siguientes resultados: 
+    </p>
+    <ul>
+        <li>linter_job: ${core.getInput('result_linter')}</li>
+    </ul>
+    <ul>
+        <li>cypress_job: ${core.getInput('result_cypress')}</li>
+    </ul>
+    <ul>
+        <li>add_badge_job: ${core.getInput('result_badge')}</li>
+    </ul>
+    <ul>
+        <li>deploy_job: ${core.getInput('result_deploy')}</li>
+    </ul>
+    `
+}
+
+transporter.sendMail(mailToOptions, (e) => {
+    if (e != null) {
+      throw err;
+    }
+    process.exit(0)
+})
+
+````
+
+Una vez creado el index.js tendremos que compilar utilizando `vercel` y en el `package.json` crearemos un scrpit que ejecutara el comando `ncc build index.js`
+
+````json
+"scripts": {
+  "test": "echo \"Error: no test specified\" && exit 1",
+  "build": "ncc build index.js"
+},
+````
+
+Y compilaremos
+
+En esta misma carpeta crearemos el fichero `action.yml`
+
+````yml
+name: Send Email using Mailgun Action
+description: Enviar email con el resultado de las pruebas
+inputs:
+  result_linter:
+    description: Result of linter_job
+    required: true
+  result_cypress:
+    description: Result of cypress_job
+    required: true
+  result_badge:
+    description: Result of add_badge_job
+    required: true
+  result_deploy:
+    description: Result of deploy_job
+    required: true
+  email_user:
+    description: Gmail Account from where the email is sent
+    required: true
+  email_password:
+    description: Gmail Account password
+    required: true
+  email_addressee:
+    description: Gmail Account to receives the email
+    required: true
+runs:
+  using: "node16"
+  main: "dist/index.js"
+````
+
+A continuación crearemos el job
+
+````yml
+notification_job:
+  runs-on: ubuntu-latest
+  needs: [ linter_job, cypress_job, add_badge_job, deploy_job ]
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Custom Action -> Send Email
+      uses: ./.github/actions/notification_action
+      with:
+        email_from: ${{ secrets.EMAIL_FROM }}
+        email_to: ${{ secrets.EMAIL_TO }}
+        email_password: ${{ secrets.EMAIL_PASSWORD }}
+        result_linter: ${{ needs.linter_job.result }}
+        result_cypress: ${{ needs.cypress_job.result }}
+        result_badge: ${{ needs.add_badge_job.result }}
+        result_deploy: ${{ needs.deploy_job.result }}
+````
+Finalmente crearemos los secrets
+
+ - EMAIL_FROM -> el gmail desde que enviara el correo
+ - EMAIL_TO -> el gmail que recibira el correo
+ - EMAIL_PASSWORD -> contraseña para aplicaciones del gamil
+
+<img src='readme_assets/email_secrets.png' />
+
+Ahora hacemos el push y comprobaremos nuestro correo
 
 
+
+
+
+
+ 

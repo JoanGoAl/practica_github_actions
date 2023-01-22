@@ -1,0 +1,27 @@
+name: Send Email using Mailgun Action
+description: Enviar email con el resultado de las pruebas
+inputs:
+  result_linter:
+    description: Result of linter_job
+    required: true
+  result_cypress:
+    description: Result of cypress_job
+    required: true
+  result_badge:
+    description: Result of add_badge_job
+    required: true
+  result_deploy:
+    description: Result of deploy_job
+    required: true
+  email_user:
+    description: Gmail Account from where the email is sent
+    required: true
+  email_password:
+    description: Gmail Account password
+    required: true
+  email_addressee:
+    description: Gmail Account to receives the email
+    required: true
+runs:
+  using: "node16"
+  main: "dist/index.js"

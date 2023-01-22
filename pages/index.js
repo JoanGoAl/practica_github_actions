@@ -12,9 +12,10 @@ export default function Home() {
       <main>
         <h1 className="title">Github Action Practica Final</h1>
         <p className="description">
-        by Joan González
+        by Joan González Albert
+        <br/>
+        2DAW
         </p>
-
       </main>
 
       <footer>
