@@ -19,12 +19,11 @@ linter_job:
     - run: npm install
     - run: npm run lint
 ````
-
-### Al hacer un commit desde la rama `main` se ejecutara el workflow, al hacerlo nos dara un error en el codigo:
+Al hacer un commit desde la rama `main` se ejecutara el workflow, al hacerlo nos dara un error en el codigo:
 
 <img src='readme_assets/error_linter.png' />
 
-### Corregimos los errores y volvemos ha hacer el push
+Corregimos los errores y volvemos ha hacer el push
 
 <img src='readme_assets/correccion_linter.png' />
 
@@ -39,7 +38,7 @@ Se encargará de ejecutar los tests de cypress (link) que contiene el proyecto. 
  - El encargado de ejecutar los tests de cypress que continuará aunque se produzca un error (existe una propiedad que podéis establecer para conseguir este comportamiento)
  - El encargado de crear un artefacto (result.txt) que contendrá la salida del step anterior
 
-### A continuación de `linter_job` crearemos el `cypress_job`
+A continuación de `linter_job` crearemos el `cypress_job`
 
 ````yml
 cypress_job:
@@ -65,7 +64,7 @@ cypress_job:
         path: result.txt
 ````
 
-### Al hacer un push podremos ver como ha ejecutado los dos jobs perfectamente
+Al hacer un push podremos ver como ha ejecutado los dos jobs perfectamente
 
 <img src='readme_assets/cypress_job.png' />
 
@@ -82,7 +81,7 @@ Add_badge_job. Se encargará de publicar en el readme del proyecto el badge que 
     - (Success) https://img.shields.io/badge/tested%20with-Cypress-04C38E.svg
 Step encargado de publicar el cambio del README.md en el repositorio
 
-### Primero crearemos el action para actualizar el `README`
+Primero crearemos el action para actualizar el `README`
 
 Crearemos la carpeta `.github/actions/actualizar_readme` donde crearemos un proyecto en node 
 
@@ -260,7 +259,7 @@ Se ha realizado un push en la rama  main que ha provocado la ejecución del work
 - add_badge_job: resultado asociado
 - deploy_job: resultado asociado
 
-### Creación del action de correos
+Creación del action de correos
 
 Crearemos la carpeta `.github/actions/notification_action` donde crearemos un proyecto en node 
 
