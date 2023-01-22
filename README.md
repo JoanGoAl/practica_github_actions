@@ -382,9 +382,6 @@ Finalmente crearemos los secrets
 
 Ahora hacemos el push y comprobaremos nuestro correo
 
+<img src='readme_assets/correo.png' />
 
-
-
-
-
- 
+Como podemos ver hemos recibido el correo con toda la información.
