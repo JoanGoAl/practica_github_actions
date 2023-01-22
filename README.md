@@ -97,7 +97,7 @@ const failure = "https://img.shields.io/badge/test-failure-red"
 
 let result = info == 'success' ? success : failure
 
-let readme = "../../../README.md"
+let readme = "./README.md"
 
 fs.readFile(readme, "utf8", (err, data) => {
 
@@ -192,3 +192,47 @@ Success:
 Failed:
 
 <img src='readme_assets/test_fallido.png' />
+
+<hr>
+
+## Deploy_job
+
+Utilizando la action amondnet/vercel-action@v20, se encargará de publicar el proyecto en la plataforma vercel. Se ejecutará tras el Cypress_job y estará formado por dos steps:
+ - El encargado de realizar el checkout del código
+ - El encargado de desplegar la aplicación en vercel que utilizará la action amondnet/vercel-action@v20
+
+Le primer paso sera crear una cuenta en `vercel` con `github` y importamos el proyecto
+
+<img src='readme_assets/vercel.png' />
+
+A continuación pulsaremos en `Deploy` y nos aparecera la siguiente tarjeta el sitio web es el siguiente <a href="https://practica-github-actions-en6a3xytb-joangoal.vercel.app">practica-github-actions</a>
+
+<img src='readme_assets/vercel_deploy.png' />
+
+A continuación crearemos el job en el workflow
+
+````yml
+deploy_job:
+  runs-on: ubuntu-latest
+  needs: cypress_job
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Upload to Vercel
+      uses: amondnet/vercel-action@v20
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        working-directory: ./
+````
+
+Para que la informaciónm sea mas segura utilizaremos los secrets de `github`
+
+<img src='readme_assets/secrets.png' />
+
+Una vez creados los secrets hacemos un push
+
+Para ver que funciona hare unos cambios en el proyecto de next
+
+
