@@ -146,3 +146,42 @@ runs:
 ````
 Y por ultimo crearemos el job en el `workflow`
 
+````yml
+badge_job:
+  runs-on: ubuntu-latest
+  needs: cypress_job
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Get Result from Artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: test_result
+    - name: Get Result Value
+      run: echo "::set-output name=cypress_outcome::$(cat result.txt)"
+      id: result_cypress_tests
+    - name: Update Readme
+      uses: "./.github/actions/actualizar_readme"
+      with:
+        result: ${{ steps.result_cypress_tests.outputs.cypress_outcome }}
+    - name: Commit Readme Changes
+      uses: EndBug/add-and-commit@v9
+      with:
+        add: "."
+        author_name: ${{ github.event.pusher.name }}
+        autho_email: ${{ github.event.pusher.email }}
+        message: "Result of the tests on Cypress"
+        push: true
+````
+
+Para que funcione hay que dar parmisos de lectura y escritura al workflow
+
+Accedermos a `Settings > Actions > General` y activamos los permisos
+
+<img src='readme_assets/permisos_workflow.png' />
+
+Una vez damos los permisos y hacemos el push podremos ver los resultados.
+
+Success:
+
+<img src='readme_assets/test_succes.png' />
