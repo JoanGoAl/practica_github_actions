@@ -2827,7 +2827,7 @@ const failure = "https://img.shields.io/badge/test-failure-red"
 
 let result = info == 'success' ? success : failure
 
-let readme = "../../../README.md"
+let readme = "./README.md"
 
 fs.readFile(readme, "utf8", (err, data) => {
 
