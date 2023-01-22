@@ -12,7 +12,6 @@ jobs:
         uses: actions/checkout@v2
       - run: npm install
       - run: npm run lint
-
   cypress_job:
     runs-on: ubuntu-latest
     needs: linter_job
@@ -34,7 +33,6 @@ jobs:
         with:
           name: test_result
           path: result.txt
-
   badge_job:
     runs-on: ubuntu-latest
     needs: cypress_job
@@ -60,3 +58,4 @@ jobs:
           autho_email: ${{ github.event.pusher.email }}
           message: "Result of the tests on Cypress"
           push: true
+     
